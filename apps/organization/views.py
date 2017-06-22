@@ -48,6 +48,7 @@ class OrgView(View):
             "city_id":city_id,
             "ct":ct,
             "sort":sort,
+            "menu_typ":"skjg",
         })
 
 
