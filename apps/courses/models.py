@@ -16,9 +16,11 @@ class Course(models.Model):
     learn_times = models.IntegerField(default=0, verbose_name=u"学习时长(分钟数)")
     students = models.IntegerField(default=0, verbose_name=u"学习人数")
     fav_nums = models.IntegerField(default=0, verbose_name=u"收藏数")
+    category = models.CharField(max_length=100, verbose_name=u"课程类别", null=True, blank=True)
     image = models.ImageField(upload_to="courses/%Y/%m", verbose_name=u"封面图", max_length=100)
     click_nums = models.IntegerField(default=0, verbose_name=u"点击数")
     add_time= models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
+    tag = models.CharField(default="", max_length=10, verbose_name=u"课程标签")
 
     class Meta:
         verbose_name = u"课程"
@@ -27,6 +29,14 @@ class Course(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    #获取课程章节数
+    def get_zj_nums(self):
+        return self.lesson_set.all().count()
+
+    #获取课程学生(显示5个)
+    def get_course_student(self):
+        return self.usercourse_set.all()[:5]
 
 
 class Lesson(models.Model):
@@ -45,6 +55,8 @@ class Lesson(models.Model):
 class Video(models.Model):
     lesson = models.ForeignKey(Lesson, verbose_name=u"章节")
     name = models.CharField(max_length=50, verbose_name=u"视频名")
+    url = models.CharField(max_length=50, verbose_name=u"访问地址", default="")
+    learn_times = models.IntegerField(default=0, verbose_name=u"学习时长(分钟数)")
     add_time = models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
 
     class Meta:
