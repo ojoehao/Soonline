@@ -1,7 +1,7 @@
 # _*_ coding: utf-8 _*_
 from django.shortcuts import render
 from django.views.generic import View
-from .models import CourseOrg,CityDict
+from .models import CourseOrg,CityDict,Teacher
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponse
 from forms import AskUserForm
@@ -173,3 +173,57 @@ class AddFavView(View):
                 return HttpResponse('{"status":"fail", "msg":"收藏出错！"}', content_type='application/json')
 
 
+class TeacherView(View):
+    """
+    讲师列表功能
+    """
+    def get(self, request):
+        #讲师
+        all_teachers = Teacher.objects.all()
+        hot_teachers = all_teachers.order_by("-click_nums")[:3]
+        sort = request.GET.get('sort', "")
+        if sort:
+            all_teachers = all_teachers.order_by("-click_nums")
+        #课程数量
+        teachers_num = all_teachers.count()
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        p = Paginator(all_teachers, 5, request=request)
+        teachers = p.page(page)
+        return render(request, 'teachers-list.html',{
+            "teachers":teachers,
+            "hot_teachers":hot_teachers,
+            "teachers_num":teachers_num,
+            "sort":sort,
+            "menu_typ":"skjs",
+        })
+
+
+class TeacherDetlView(View):
+    """
+    讲师列表功能
+    """
+
+    def get(self, request, teacher_id):
+        # 讲师
+        all_teachers = Teacher.objects.all()
+        hot_teachers = all_teachers.order_by("-click_nums")[:3]
+        teacher = Teacher.objects.get(id=teacher_id)
+        relate_courses = Course.objects.filter(teacher=teacher)
+        has_teacher_fav = False
+        has_org_fav = False
+        if request.user.is_authenticated():
+            if UserFavorite.objects.filter(user=request.user, fav_id=teacher.id, fav_type=3):
+                has_teacher_fav = True
+            if UserFavorite.objects.filter(user=request.user, fav_id=teacher.org.id, fav_type=2):
+                has_org_fav = True
+        return render(request, 'teacher-detail.html', {
+            "teacher": teacher,
+            "relate_courses": relate_courses,
+            "hot_teachers": hot_teachers,
+            "has_teacher_fav": has_teacher_fav,
+            "has_org_fav": has_org_fav,
+            "menu_typ": "skjs",
+        })
