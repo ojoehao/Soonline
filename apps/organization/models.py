@@ -31,6 +31,7 @@ class CourseOrg(models.Model):
     course_nums = models.IntegerField(default=0, verbose_name=u"课程数")
     city = models.ForeignKey(CityDict, verbose_name=u"所在城市")
     add_time = models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
+    tag = models.CharField(max_length=10, verbose_name=u"机构标签", default=u"全国知名")
 
     class Meta:
         verbose_name = u"课程机构"
@@ -63,3 +64,7 @@ class Teacher(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    #获取课程数
+    def get_kc_nums(self):
+        return self.course_set.count()

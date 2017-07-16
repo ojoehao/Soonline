@@ -28,7 +28,7 @@ SECRET_KEY = '-eitl)^+2kp#qhv0*u1h9-$b@dq&-0dy!(=07z&j9@!u4&&h3n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -160,6 +160,8 @@ EMAIL_FROM = 'hhh2622189@163.com'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 PAGINATION_SETTINGS = {
     'PAGE_RANGE_DISPLAYED': 5,

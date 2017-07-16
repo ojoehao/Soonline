@@ -1,11 +1,12 @@
 # _*_ coding: utf-8 _*_
 from django.shortcuts import render
 from django.views.generic import View
-from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
+from pure_pagination import Paginator, PageNotAnInteger
 from django.http import HttpResponse
 from .models import Course,CourseResource
 from operation.models import UserFavorite,CourseComments,UserCourse
 from datetime import datetime
+from django.db.models import Q
 #from utils.mixin_utils import LoginRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
@@ -19,13 +20,19 @@ class CourseView(View):
         #课程
         all_courses = Course.objects.all().order_by("-add_time")
         hot_courses = all_courses.order_by("-click_nums")[:3]
+
+        #全局搜索keyword
+        search_keyword = request.GET.get('keywords', "")
+        if search_keyword:
+            all_courses = all_courses.filter(Q(name__icontains=search_keyword) | Q(desc__icontains=search_keyword) | Q(detail__icontains=search_keyword))
+        #排序
         city_id = request.GET.get('city', "")
         ct = request.GET.get('ct',"")
         sort = request.GET.get('sort', "")
         if city_id:
-            all_orgs = all_courses.filter(city_id=int(city_id))
+            all_courses = all_courses.filter(city_id=int(city_id))
         if ct:
-            all_orgs = all_courses.filter(category=ct)
+            all_courses = all_courses.filter(category=ct)
         if sort:
             if sort == "hot":
                 all_courses = all_courses.order_by("-click_nums")
@@ -46,7 +53,8 @@ class CourseView(View):
             "city_id":city_id,
             "ct":ct,
             "sort":sort,
-            "menu_typ":"gkk",
+            "search_keyword": search_keyword,
+            "selectOption": "公开课",
         })
 
 
@@ -89,9 +97,12 @@ class CourseInfoView(LoginRequiredMixin, View):
 
     def get(self,request,course_id):
         course = Course.objects.get(id=int(course_id))
+        #学习人数加1
+        course.students += 1
+        course.save()
         #查询用户是否已经关联该课程
         user_course = UserCourse.objects.filter(user=request.user,course=course)
-        if user_course:
+        if not user_course:
             user_course = UserCourse(user=request.user,course=course)
             user_course.save()
 

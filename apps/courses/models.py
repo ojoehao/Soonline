@@ -24,6 +24,7 @@ class Course(models.Model):
     tag = models.CharField(default="", max_length=10, verbose_name=u"课程标签")
     uneed_know = models.CharField(default="", max_length=10, verbose_name=u"课程须知")
     teacher_tell = models.CharField(default="", max_length=10, verbose_name=u"老师告诉你")
+    is_banner = models.BooleanField(default=False, verbose_name=u"是否轮播图")
 
     class Meta:
         verbose_name = u"课程"

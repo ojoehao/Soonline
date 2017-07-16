@@ -10,7 +10,10 @@ from users.models import EmailVerifyRecord
 
 def send_register_email(email, send_typy="register"):
     emailVerifyRecord = EmailVerifyRecord()
-    random_str = generate_random_str(16)
+    if send_typy == "upd_email":
+        random_str = generate_random_str(4)
+    else:
+        random_str = generate_random_str(16)
     emailVerifyRecord.code = random_str
     emailVerifyRecord.email = email
     emailVerifyRecord.send_type = send_typy
@@ -25,6 +28,10 @@ def send_register_email(email, send_typy="register"):
     elif send_typy == "forget" :
         email_title = "luanluanmamamamamamamamama"
         email_body = "请点击下面链接重置你的密码：http://127.0.0.1:8000/reset/{0}".format(random_str)
+        send_status = send_mail(email_title, email_body, EMAIL_FROM, [email])
+    elif send_typy == "upd_email":
+        email_title = "出大老粗预付款具备基本框架"
+        email_body = "您的邮箱重置验证码为：{0}".format(random_str)
         send_status = send_mail(email_title, email_body, EMAIL_FROM, [email])
         if send_status:
             pass
